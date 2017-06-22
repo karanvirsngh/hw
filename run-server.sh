@@ -1,6 +1,23 @@
 #!/bin/bash
 
-./wait-for-it db:5432 -- echo "Postgres:DB is up"
+is_up(){
+				local service=$1
+				local port=$2
+				local name=$3
+
+				./wait-for-it $service:$port
+				if [[ $? != 0 ]];then
+        				echo "Timed out waiting for $name to come up, .: exiting"
+								exit -1
+        else
+        				echo "$name	| is up"
+        fi
+
+}
+
+is_up cache 6379 'Django Cache: Redis>'
+is_up db 5432 'Django DB: postgres'
+
 
 python3 manage.py migrate
 
